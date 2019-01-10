@@ -65,6 +65,7 @@ type options struct {
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
 	sentry             *raven.Client
+	disableRecovery    bool
 }
 
 // Option for the gRPC server
@@ -112,6 +113,13 @@ func WithSentry(sentry *raven.Client) Option {
 	}
 }
 
+// WithoutRecovery sets gRPC recovery
+func WithoutRecovery() Option {
+	return func(o *options) {
+		o.disableRecovery = true
+	}
+}
+
 // ErrRPCRecovered is returned when a panic is caught from an RPC.
 var ErrRPCRecovered = errors.DefineInternal("rpc_recovered", "Internal Server Error")
 
@@ -150,6 +158,9 @@ func New(ctx context.Context, opts ...Option) *Server {
 		validator.StreamServerInterceptor(),
 		hooks.StreamServerInterceptor(),
 	}
+	if !options.disableRecovery {
+		streamInterceptors = append(streamInterceptors, grpc_recovery.StreamServerInterceptor(recoveryOpts...))
+	}
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
 		rpcfillcontext.UnaryServerInterceptor(options.contextFillers...),
@@ -164,6 +175,9 @@ func New(ctx context.Context, opts ...Option) *Server {
 		validator.UnaryServerInterceptor(),
 		hooks.UnaryServerInterceptor(),
 	}
+	if !options.disableRecovery {
+		unaryInterceptors = append(unaryInterceptors, grpc_recovery.UnaryServerInterceptor(recoveryOpts...))
+	}
 
 	baseOptions := []grpc.ServerOption{
 		grpc.StatsHandler(rpcmiddleware.StatsHandlers{new(ocgrpc.ServerHandler), metrics.StatsHandler}),
@@ -173,16 +187,10 @@ func New(ctx context.Context, opts ...Option) *Server {
 			MaxConnectionAge:  24 * time.Hour,
 		}),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			append(
-				append(streamInterceptors, options.streamInterceptors...),
-				grpc_recovery.StreamServerInterceptor(recoveryOpts...),
-			)...,
+			append(streamInterceptors, options.streamInterceptors...)...,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			append(
-				append(unaryInterceptors, options.unaryInterceptors...),
-				grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
-			)...,
+			append(unaryInterceptors, options.unaryInterceptors...)...,
 		)),
 	}
 	server.Server = grpc.NewServer(append(baseOptions, options.serverOptions...)...)
