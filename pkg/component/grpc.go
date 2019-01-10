@@ -38,6 +38,7 @@ func (c *Component) initGRPC() {
 		c.ctx,
 		rpcserver.WithContextFiller(c.FillContext),
 		rpcserver.WithSentry(c.sentry),
+		rpcserver.WithoutRecovery(), // TODO: Remove, consider introducing a configuration setting for this.
 	)
 }
 
