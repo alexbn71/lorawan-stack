@@ -160,6 +160,9 @@ func (r *DeviceRegistry) set(tx *redis.Tx, uid string, gets []string, f func(pb 
 	if stored == nil && pb == nil {
 		return nil, nil
 	}
+	if pb != nil && len(sets) == 0 {
+		return stored, nil
+	}
 
 	var pipelined func(redis.Pipeliner) error
 	if pb == nil {
