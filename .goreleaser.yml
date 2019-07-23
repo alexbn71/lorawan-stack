@@ -82,19 +82,6 @@ nfpms:
     files:
       "public/**/*": "/srv/ttn-lorawan/public"
 
-snapcrafts:
-  - name: ttn-lw-stack
-    summary: The Things Network Stack for LoRaWAN
-    description: The Things Network Stack for LoRaWAN
-    grade: stable
-    confinement: strict
-    publish: true
-    apps:
-      ttn-lw-stack:
-        plugs: [ home, network, network-bind ]
-      ttn-lw-cli:
-        plugs: [ home, network, network-bind ]
-
 brews:
   # TODO: Generate separate formulas for stack+CLI and CLI only.(https://github.com/TheThingsNetwork/lorawan-stack/issues/108)
   - name: ttn-lw-stack
