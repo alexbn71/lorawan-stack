@@ -68,7 +68,7 @@ archives:
         format: zip
 
 nfpms:
-  - vendor: The Things Network
+  - vendor: rvolosatovs
     homepage: https://www.thethingsnetwork.org
     maintainer: The Things Network Foundation <stack@thethingsnetwork.org>
     description: The Things Network Stack for LoRaWAN
@@ -99,7 +99,7 @@ brews:
   # TODO: Generate separate formulas for stack+CLI and CLI only.(https://github.com/TheThingsNetwork/lorawan-stack/issues/108)
   - name: ttn-lw-stack
     github:
-      owner: TheThingsNetwork
+      owner: rvolosatovs
       name: homebrew-lorawan-stack
     commit_author:
       name: ttn-ci
@@ -122,10 +122,10 @@ dockers:
       - ttn-lw-cli
       - ttn-lw-stack
     image_templates:
-      - "thethingsnetwork/lorawan-stack:latest"
-      - "thethingsnetwork/lorawan-stack:{{ .Major }}"
-      - "thethingsnetwork/lorawan-stack:{{ .Major }}.{{ .Minor }}"
-      - "thethingsnetwork/lorawan-stack:{{ .Version }}"
+      - "rvolosatovs/lorawan-stack:latest"
+      - "rvolosatovs/lorawan-stack:{{ .Major }}"
+      - "rvolosatovs/lorawan-stack:{{ .Major }}.{{ .Minor }}"
+      - "rvolosatovs/lorawan-stack:{{ .Version }}"
     skip_push: auto
     extra_files:
       - public
