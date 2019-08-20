@@ -21,15 +21,8 @@ builds:
     goos:
       - darwin
       - linux
-      - windows
     goarch:
-      - 386
       - amd64
-      - arm
-      - arm64
-    goarm:
-      - 6
-      - 7
 
   - id: cli
     main: ./cmd/ttn-lw-cli
@@ -45,15 +38,8 @@ builds:
     goos:
       - darwin
       - linux
-      - windows
     goarch:
-      - 386
       - amd64
-      - arm
-      - arm64
-    goarm:
-      - 6
-      - 7
 
 archives:
   - id: stack
@@ -167,10 +153,10 @@ dockers:
       - ttn-lw-cli
       - ttn-lw-stack
     image_templates:
-      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:latest'
-      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Major }}'
-      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
-      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Version }}'
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:latest'
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}'
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Version }}'
     skip_push: auto
     extra_files:
       - public
