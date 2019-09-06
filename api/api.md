@@ -1939,8 +1939,6 @@ This is used internally by the Network Server and is read only.
 | `adr_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | ADR: data rate index to use. |
 | `adr_tx_power_index` | [`uint32`](#uint32) |  | ADR: transmission power index to use. |
 | `adr_nb_trans` | [`uint32`](#uint32) |  | ADR: number of retransmissions. |
-| `adr_ack_limit` | [`uint32`](#uint32) |  | ADR: number of messages to wait before setting ADRAckReq. |
-| `adr_ack_delay` | [`uint32`](#uint32) |  | ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate. |
 | `rx1_delay` | [`RxDelay`](#ttn.lorawan.v3.RxDelay) |  | Rx1 delay (Rx2 delay is Rx1 delay + 1 second). |
 | `rx1_data_rate_offset` | [`uint32`](#uint32) |  | Data rate offset for Rx1. |
 | `rx2_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | Data rate index for Rx2. |
@@ -1954,6 +1952,8 @@ This is used internally by the Network Server and is read only.
 | `channels` | [`MACParameters.Channel`](#ttn.lorawan.v3.MACParameters.Channel) | repeated | Configured uplink channels and optionally Rx1 frequency. |
 | `uplink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether uplink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
 | `downlink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether downlink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
+| `adr_ack_limit` | [`ADRAckLimitExponent`](#ttn.lorawan.v3.ADRAckLimitExponent) |  | ADR: number of messages to wait before setting ADRAckReq. |
+| `adr_ack_delay` | [`ADRAckDelayExponent`](#ttn.lorawan.v3.ADRAckDelayExponent) |  | ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate. |
 
 #### Field Rules
 
@@ -1962,8 +1962,6 @@ This is used internally by the Network Server and is read only.
 | `adr_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 | `adr_tx_power_index` | <p>`uint32.lte`: `15`</p> |
 | `adr_nb_trans` | <p>`uint32.lte`: `15`</p> |
-| `adr_ack_limit` | <p>`uint32.lte`: `32768`</p><p>`uint32.gte`: `1`</p> |
-| `adr_ack_delay` | <p>`uint32.lte`: `32768`</p><p>`uint32.gte`: `1`</p> |
 | `rx1_delay` | <p>`enum.defined_only`: `true`</p> |
 | `rx1_data_rate_offset` | <p>`uint32.lte`: `7`</p> |
 | `rx2_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
@@ -1975,6 +1973,8 @@ This is used internally by the Network Server and is read only.
 | `ping_slot_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 | `beacon_frequency` | <p>`uint64.lte`: `0`</p><p>`uint64.gte`: `100000`</p> |
 | `channels` | <p>`repeated.min_items`: `1`</p> |
+| `adr_ack_limit` | <p>`enum.defined_only`: `true`</p> |
+| `adr_ack_delay` | <p>`enum.defined_only`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.MACParameters.Channel">Message `MACParameters.Channel`</a>
 
@@ -2021,8 +2021,8 @@ This is used internally by the Network Server and is read only.
 | `desired_rx2_data_rate_index` | [`MACSettings.DataRateIndexValue`](#ttn.lorawan.v3.MACSettings.DataRateIndexValue) |  | The Rx2 data rate index Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from frequency plan, Network Server configuration or regional parameters specification will be used. |
 | `desired_rx2_frequency` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | The Rx2 frequency index Network Server should configure device to use via MAC commands. If unset, the default value from frequency plan, Network Server configuration or regional parameters specification will be used. |
 | `desired_max_duty_cycle` | [`MACSettings.AggregatedDutyCycleValue`](#ttn.lorawan.v3.MACSettings.AggregatedDutyCycleValue) |  | The maximum uplink duty cycle (of all channels) Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
-| `desired_adr_ack_limit` | [`MACSettings.ADRAckLimitExponentValue`](#ttn.lorawan.v3.MACSettings.ADRAckLimitExponentValue) |  | The ADR ACK limit exponent Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
-| `desired_adr_ack_delay` | [`MACSettings.ADRAckDelayExponentValue`](#ttn.lorawan.v3.MACSettings.ADRAckDelayExponentValue) |  | The ADR ACK delay exponent Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
+| `desired_adr_ack_limit` | [`MACSettings.ADRAckLimitExponentValue`](#ttn.lorawan.v3.MACSettings.ADRAckLimitExponentValue) |  | The ADR ACK limit Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
+| `desired_adr_ack_delay` | [`MACSettings.ADRAckDelayExponentValue`](#ttn.lorawan.v3.MACSettings.ADRAckDelayExponentValue) |  | The ADR ACK delay Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
 
 #### Field Rules
 

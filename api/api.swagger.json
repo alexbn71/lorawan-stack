@@ -9209,16 +9209,6 @@
           "format": "int64",
           "description": "ADR: number of retransmissions."
         },
-        "adr_ack_limit": {
-          "type": "integer",
-          "format": "int64",
-          "description": "ADR: number of messages to wait before setting ADRAckReq."
-        },
-        "adr_ack_delay": {
-          "type": "integer",
-          "format": "int64",
-          "description": "ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate."
-        },
         "rx1_delay": {
           "$ref": "#/definitions/v3RxDelay",
           "description": "Rx1 delay (Rx2 delay is Rx1 delay + 1 second)."
@@ -9279,6 +9269,14 @@
           "type": "boolean",
           "format": "boolean",
           "description": "Whether downlink dwell time is set (400ms).\nIf this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it)."
+        },
+        "adr_ack_limit": {
+          "$ref": "#/definitions/v3ADRAckLimitExponent",
+          "description": "ADR: number of messages to wait before setting ADRAckReq."
+        },
+        "adr_ack_delay": {
+          "$ref": "#/definitions/v3ADRAckDelayExponent",
+          "description": "ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate."
         }
       },
       "description": "MACParameters represent the parameters of the device's MAC layer (active or desired).\nThis is used internally by the Network Server and is read only."
@@ -9437,11 +9435,11 @@
         },
         "desired_adr_ack_limit": {
           "$ref": "#/definitions/MACSettingsADRAckLimitExponentValue",
-          "description": "The ADR ACK limit exponent Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used."
+          "description": "The ADR ACK limit Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used."
         },
         "desired_adr_ack_delay": {
           "$ref": "#/definitions/MACSettingsADRAckDelayExponentValue",
-          "description": "The ADR ACK delay exponent Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used."
+          "description": "The ADR ACK delay Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used."
         }
       }
     },

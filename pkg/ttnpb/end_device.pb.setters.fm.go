@@ -142,26 +142,6 @@ func (dst *MACParameters) SetFields(src *MACParameters, paths ...string) error {
 				var zero uint32
 				dst.ADRNbTrans = zero
 			}
-		case "adr_ack_limit":
-			if len(subs) > 0 {
-				return fmt.Errorf("'adr_ack_limit' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.ADRAckLimit = src.ADRAckLimit
-			} else {
-				var zero uint32
-				dst.ADRAckLimit = zero
-			}
-		case "adr_ack_delay":
-			if len(subs) > 0 {
-				return fmt.Errorf("'adr_ack_delay' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.ADRAckDelay = src.ADRAckDelay
-			} else {
-				var zero uint32
-				dst.ADRAckDelay = zero
-			}
 		case "rx1_delay":
 			if len(subs) > 0 {
 				return fmt.Errorf("'rx1_delay' has no subfields, but %s were specified", subs)
@@ -288,6 +268,26 @@ func (dst *MACParameters) SetFields(src *MACParameters, paths ...string) error {
 				dst.DownlinkDwellTime = src.DownlinkDwellTime
 			} else {
 				dst.DownlinkDwellTime = nil
+			}
+		case "adr_ack_limit":
+			if len(subs) > 0 {
+				return fmt.Errorf("'adr_ack_limit' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ADRAckLimit = src.ADRAckLimit
+			} else {
+				var zero ADRAckLimitExponent
+				dst.ADRAckLimit = zero
+			}
+		case "adr_ack_delay":
+			if len(subs) > 0 {
+				return fmt.Errorf("'adr_ack_delay' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ADRAckDelay = src.ADRAckDelay
+			} else {
+				var zero ADRAckDelayExponent
+				dst.ADRAckDelay = zero
 			}
 
 		default:

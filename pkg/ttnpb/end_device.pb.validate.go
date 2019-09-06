@@ -192,24 +192,6 @@ func (m *MACParameters) ValidateFields(paths ...string) error {
 				}
 			}
 
-		case "adr_ack_limit":
-
-			if val := m.GetADRAckLimit(); val < 1 || val > 32768 {
-				return MACParametersValidationError{
-					field:  "adr_ack_limit",
-					reason: "value must be inside range [1, 32768]",
-				}
-			}
-
-		case "adr_ack_delay":
-
-			if val := m.GetADRAckDelay(); val < 1 || val > 32768 {
-				return MACParametersValidationError{
-					field:  "adr_ack_delay",
-					reason: "value must be inside range [1, 32768]",
-				}
-			}
-
 		case "rx1_delay":
 
 			if _, ok := RxDelay_name[int32(m.GetRx1Delay())]; !ok {
@@ -345,6 +327,24 @@ func (m *MACParameters) ValidateFields(paths ...string) error {
 						reason: "embedded message failed validation",
 						cause:  err,
 					}
+				}
+			}
+
+		case "adr_ack_limit":
+
+			if _, ok := ADRAckLimitExponent_name[int32(m.GetADRAckLimit())]; !ok {
+				return MACParametersValidationError{
+					field:  "adr_ack_limit",
+					reason: "value must be one of the defined enum values",
+				}
+			}
+
+		case "adr_ack_delay":
+
+			if _, ok := ADRAckDelayExponent_name[int32(m.GetADRAckDelay())]; !ok {
+				return MACParametersValidationError{
+					field:  "adr_ack_delay",
+					reason: "value must be one of the defined enum values",
 				}
 			}
 
