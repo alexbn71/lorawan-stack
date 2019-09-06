@@ -105,12 +105,28 @@ func isAtomicType(t reflect.Type, maskOnly bool) bool {
 		}
 	case "github.com/gogo/protobuf/types":
 		switch t.Name() {
-		case "DoubleValue", "FloatValue", "Int64Value", "UInt64Value", "Int32Value", "UInt32Value", "BoolValue", "StringValue", "BytesValue":
+		case
+			"BoolValue",
+			"BytesValue",
+			"DoubleValue",
+			"FloatValue",
+			"Int32Value",
+			"Int64Value",
+			"StringValue",
+			"UInt32Value",
+			"UInt64Value":
 			return true
 		}
 	case "go.thethings.network/lorawan-stack/pkg/ttnpb":
 		switch t.Name() {
-		case "Picture", "MACSettings_DataRateIndexValue", "MACSettings_PingSlotPeriodValue", "MACSettings_AggregatedDutyCycleValue", "MACSettings_RxDelayValue":
+		case
+			"MACSettings_ADRAckDelayExponentValue",
+			"MACSettings_ADRAckLimitExponentValue",
+			"MACSettings_AggregatedDutyCycleValue",
+			"MACSettings_DataRateIndexValue",
+			"MACSettings_PingSlotPeriodValue",
+			"MACSettings_RxDelayValue",
+			"Picture":
 			return true
 		}
 	}
@@ -158,6 +174,10 @@ func enumValues(t reflect.Type) []string {
 		return values
 	}
 	return nil
+}
+
+func unwrapMACSettingsEnumType(typeName string) string {
+	return fmt.Sprintf("ttn.lorawan.v3.%s", strings.TrimSuffix(strings.TrimPrefix(typeName, "MACSettings_"), "Value"))
 }
 
 func addField(fs *pflag.FlagSet, name string, t reflect.Type, maskOnly bool) {
@@ -255,28 +275,17 @@ func addField(fs *pflag.FlagSet, name string, t reflect.Type, maskOnly bool) {
 				fs.String(name, "", "(hex)")
 			}
 		case "go.thethings.network/lorawan-stack/pkg/ttnpb":
-			switch t.Name() {
-			case "MACSettings_DataRateIndexValue":
-				values := make([]string, 0, len(proto.EnumValueMap("ttn.lorawan.v3.DataRateIndex")))
-				for value := range proto.EnumValueMap("ttn.lorawan.v3.DataRateIndex") {
-					values = append(values, value)
-				}
-				fs.String(name, "", strings.Join(values, "|"))
-			case "MACSettings_PingSlotPeriodValue":
-				values := make([]string, 0, len(proto.EnumValueMap("ttn.lorawan.v3.PingSlotPeriod")))
-				for value := range proto.EnumValueMap("ttn.lorawan.v3.PingSlotPeriod") {
-					values = append(values, value)
-				}
-				fs.String(name, "", strings.Join(values, "|"))
-			case "MACSettings_AggregatedDutyCycleValue":
-				values := make([]string, 0, len(proto.EnumValueMap("ttn.lorawan.v3.AggregatedDutyCycle")))
-				for value := range proto.EnumValueMap("ttn.lorawan.v3.AggregatedDutyCycle") {
-					values = append(values, value)
-				}
-				fs.String(name, "", strings.Join(values, "|"))
-			case "MACSettings_RxDelayValue":
-				values := make([]string, 0, len(proto.EnumValueMap("ttn.lorawan.v3.RxDelay")))
-				for value := range proto.EnumValueMap("ttn.lorawan.v3.RxDelay") {
+			switch typeName := t.Name(); typeName {
+			case
+				"MACSettings_ADRAckDelayExponentValue",
+				"MACSettings_ADRAckLimitExponentValue",
+				"MACSettings_AggregatedDutyCycleValue",
+				"MACSettings_DataRateIndexValue",
+				"MACSettings_PingSlotPeriodValue",
+				"MACSettings_RxDelayValue":
+				enumType := unwrapMACSettingsEnumType(typeName)
+				values := make([]string, 0, len(proto.EnumValueMap(enumType)))
+				for value := range proto.EnumValueMap(enumType) {
 					values = append(values, value)
 				}
 				fs.String(name, "", strings.Join(values, "|"))
@@ -458,43 +467,73 @@ func setField(rv reflect.Value, path []string, v reflect.Value) error {
 						field.Set(reflect.ValueOf(types.BytesValue{Value: buf}))
 					}
 				case ft.PkgPath() == "go.thethings.network/lorawan-stack/pkg/ttnpb":
-					switch ft.Name() {
+					switch typeName := ft.Name(); typeName {
 					case "MACSettings_DataRateIndexValue":
-						if enumValue, ok := proto.EnumValueMap("ttn.lorawan.v3.DataRateIndex")[v.String()]; ok {
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_DataRateIndexValue{Value: ttnpb.DataRateIndex(enumValue)}))
 							break
 						}
-
 						var enum ttnpb.DataRateIndex
 						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_DataRateIndexValue{Value: enum}))
 							break
 						}
-						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), ft.Name())
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
 					case "MACSettings_PingSlotPeriodValue":
-						if enumValue, ok := proto.EnumValueMap("ttn.lorawan.v3.PingSlotPeriod")[v.String()]; ok {
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_PingSlotPeriodValue{Value: ttnpb.PingSlotPeriod(enumValue)}))
 							break
 						}
-						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), ft.Name())
+						var enum ttnpb.PingSlotPeriod
+						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_PingSlotPeriodValue{Value: enum}))
+							break
+						}
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
 					case "MACSettings_AggregatedDutyCycleValue":
-						if enumValue, ok := proto.EnumValueMap("ttn.lorawan.v3.AggregatedDutyCycle")[v.String()]; ok {
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_AggregatedDutyCycleValue{Value: ttnpb.AggregatedDutyCycle(enumValue)}))
 							break
 						}
-						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), ft.Name())
+						var enum ttnpb.AggregatedDutyCycle
+						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_AggregatedDutyCycleValue{Value: enum}))
+							break
+						}
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
 					case "MACSettings_RxDelayValue":
-						if enumValue, ok := proto.EnumValueMap("ttn.lorawan.v3.RxDelay")[v.String()]; ok {
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_RxDelayValue{Value: ttnpb.RxDelay(enumValue)}))
 							break
 						}
-
 						var enum ttnpb.RxDelay
 						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
 							field.Set(reflect.ValueOf(ttnpb.MACSettings_RxDelayValue{Value: enum}))
 							break
 						}
-						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), ft.Name())
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
+					case "MACSettings_ADRAckDelayExponentValue":
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_ADRAckDelayExponentValue{Value: ttnpb.ADRAckDelayExponent(enumValue)}))
+							break
+						}
+						var enum ttnpb.ADRAckDelayExponent
+						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_ADRAckDelayExponentValue{Value: enum}))
+							break
+						}
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
+					case "MACSettings_ADRAckLimitExponentValue":
+						if enumValue, ok := proto.EnumValueMap(unwrapMACSettingsEnumType(typeName))[v.String()]; ok {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_ADRAckLimitExponentValue{Value: ttnpb.ADRAckLimitExponent(enumValue)}))
+							break
+						}
+						var enum ttnpb.ADRAckLimitExponent
+						if err := enum.UnmarshalText([]byte(v.String())); err != nil {
+							field.Set(reflect.ValueOf(ttnpb.MACSettings_ADRAckLimitExponentValue{Value: enum}))
+							break
+						}
+						return fmt.Errorf(`invalid value "%s" for %s`, v.String(), typeName)
 					}
 				case ft.Kind() == reflect.Slice && ft.Elem().Kind() == reflect.Uint8 && vt.Kind() == reflect.String:
 					s := strings.TrimPrefix(v.String(), "0x")
