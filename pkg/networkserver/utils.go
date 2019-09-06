@@ -129,10 +129,10 @@ func newMACState(dev *ttnpb.EndDevice, fps *frequencyplans.Store, defaults ttnpb
 	macState.CurrentParameters.ADRNbTrans = 1
 	macState.DesiredParameters.ADRNbTrans = macState.CurrentParameters.ADRNbTrans
 
-	macState.CurrentParameters.ADRAckLimit = uint32(phy.ADRAckLimit)
+	macState.CurrentParameters.ADRAckLimit = phy.ADRAckLimit
 	macState.DesiredParameters.ADRAckLimit = macState.CurrentParameters.ADRAckLimit
 
-	macState.CurrentParameters.ADRAckDelay = uint32(phy.ADRAckDelay)
+	macState.CurrentParameters.ADRAckDelay = phy.ADRAckDelay
 	macState.DesiredParameters.ADRAckDelay = macState.CurrentParameters.ADRAckDelay
 
 	macState.CurrentParameters.Rx1Delay = ttnpb.RxDelay(phy.ReceiveDelay1.Seconds())
