@@ -230,6 +230,14 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 			return nil, nil, errInvalidFieldValue.WithAttributes("field", "mac_settings.status_count_periodicity")
 		}
 
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "mac_settings.desired_adr_ack_delay.value") && req.EndDevice.GetMACSettings().GetDesiredADRAckDelay() == nil {
+			return nil, nil, errInvalidFieldValue.WithAttributes("field", "mac_settings.desired_adr_ack_delay")
+		}
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "mac_settings.desired_adr_ack_limit.value") && req.EndDevice.GetMACSettings().GetDesiredADRAckLimit() == nil {
+			return nil, nil, errInvalidFieldValue.WithAttributes("field", "mac_settings.desired_adr_ack_limit")
+		}
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "mac_settings.desired_max_duty_cycle.value") && req.EndDevice.GetMACSettings().GetDesiredMaxDutyCycle() == nil {
+			return nil, nil, errInvalidFieldValue.WithAttributes("field", "mac_settings.desired_max_duty_cycle")
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "mac_settings.desired_rx1_data_rate_offset.value") && req.EndDevice.GetMACSettings().GetDesiredRx1DataRateOffset() == nil {
 			return nil, nil, errInvalidFieldValue.WithAttributes("field", "mac_settings.desired_rx1_data_rate_offset")

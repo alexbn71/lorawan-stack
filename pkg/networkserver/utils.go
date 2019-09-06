@@ -131,9 +131,19 @@ func newMACState(dev *ttnpb.EndDevice, fps *frequencyplans.Store, defaults ttnpb
 
 	macState.CurrentParameters.ADRAckLimit = phy.ADRAckLimit
 	macState.DesiredParameters.ADRAckLimit = macState.CurrentParameters.ADRAckLimit
+	if dev.GetMACSettings().GetDesiredADRAckLimit() != nil {
+		macState.DesiredParameters.ADRAckLimit = dev.MACSettings.DesiredADRAckLimit.Value
+	} else if defaults.DesiredADRAckLimit != nil {
+		macState.DesiredParameters.ADRAckLimit = defaults.DesiredADRAckLimit.Value
+	}
 
 	macState.CurrentParameters.ADRAckDelay = phy.ADRAckDelay
 	macState.DesiredParameters.ADRAckDelay = macState.CurrentParameters.ADRAckDelay
+	if dev.GetMACSettings().GetDesiredADRAckDelay() != nil {
+		macState.DesiredParameters.ADRAckDelay = dev.MACSettings.DesiredADRAckDelay.Value
+	} else if defaults.DesiredADRAckDelay != nil {
+		macState.DesiredParameters.ADRAckDelay = defaults.DesiredADRAckDelay.Value
+	}
 
 	macState.CurrentParameters.Rx1Delay = ttnpb.RxDelay(phy.ReceiveDelay1.Seconds())
 	if dev.GetMACSettings().GetRx1Delay() != nil {
@@ -196,7 +206,13 @@ func newMACState(dev *ttnpb.EndDevice, fps *frequencyplans.Store, defaults ttnpb
 		macState.CurrentParameters.MaxDutyCycle = dev.MACSettings.MaxDutyCycle.Value
 	}
 	macState.DesiredParameters.MaxDutyCycle = macState.CurrentParameters.MaxDutyCycle
+	if dev.GetMACSettings().GetDesiredMaxDutyCycle() != nil {
+		macState.DesiredParameters.MaxDutyCycle = dev.MACSettings.DesiredMaxDutyCycle.Value
+	} else if defaults.DesiredMaxDutyCycle != nil {
+		macState.DesiredParameters.MaxDutyCycle = defaults.DesiredMaxDutyCycle.Value
+	}
 
+	// TODO: Support rejoins. (https://github.com/TheThingsNetwork/lorawan-stack/issues/8)
 	macState.CurrentParameters.RejoinTimePeriodicity = ttnpb.REJOIN_TIME_0
 	macState.DesiredParameters.RejoinTimePeriodicity = macState.CurrentParameters.RejoinTimePeriodicity
 
@@ -225,6 +241,7 @@ func newMACState(dev *ttnpb.EndDevice, fps *frequencyplans.Store, defaults ttnpb
 		macState.DesiredParameters.PingSlotDataRateIndex = ttnpb.DataRateIndex(*fp.DefaultPingSlotDataRate)
 	}
 
+	// TODO: Support class B. (https://github.com/TheThingsNetwork/lorawan-stack/issues/19)
 	macState.CurrentParameters.BeaconFrequency = 0
 	macState.DesiredParameters.BeaconFrequency = macState.CurrentParameters.BeaconFrequency
 

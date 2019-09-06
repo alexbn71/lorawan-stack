@@ -218,6 +218,15 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	if conf.DefaultMACSettings.DesiredRx1Delay != nil {
 		ns.defaultMACSettings.DesiredRx1Delay = &ttnpb.MACSettings_RxDelayValue{Value: *conf.DefaultMACSettings.DesiredRx1Delay}
 	}
+	if conf.DefaultMACSettings.DesiredMaxDutyCycle != nil {
+		ns.defaultMACSettings.DesiredMaxDutyCycle = &ttnpb.MACSettings_AggregatedDutyCycleValue{Value: *conf.DefaultMACSettings.DesiredMaxDutyCycle}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckLimit != nil {
+		ns.defaultMACSettings.DesiredADRAckLimit = &ttnpb.MACSettings_ADRAckLimitExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckLimit}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckDelay != nil {
+		ns.defaultMACSettings.DesiredADRAckDelay = &ttnpb.MACSettings_ADRAckDelayExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckDelay}
+	}
 	if conf.DefaultMACSettings.StatusCountPeriodicity != nil {
 		ns.defaultMACSettings.StatusCountPeriodicity = &pbtypes.UInt32Value{Value: *conf.DefaultMACSettings.StatusCountPeriodicity}
 	}
