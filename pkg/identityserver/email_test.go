@@ -48,7 +48,10 @@ func TestGetEmailTemplates(t *testing.T) {
 	ctx := test.Context()
 
 	testWithIdentityServer(t, func(is *IdentityServer, cc *grpc.ClientConn) {
-		registry := is.getEmailTemplates(ctx)
+		registry, err := is.getEmailTemplates(ctx)
+		if !a.So(err, should.BeNil) {
+			t.Fatalf("Failed to construct email template registry: %v", err)
+		}
 		a.So(registry, should.NotBeNil)
 
 		for _, tc := range []struct {
