@@ -267,7 +267,7 @@ func (c InteropClient) IsZero() bool {
 func (c InteropClient) Fetcher() (fetch.Interface, error) {
 	switch {
 	case c.Directory != "":
-		return fetch.FromFilesystem(c.Directory), nil
+		return fetch.WithBasePath(fetch.FromFilesystem(), c.Directory), nil
 	case c.URL != "":
 		return fetch.FromHTTP(c.URL, true)
 	default:
