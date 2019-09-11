@@ -19,7 +19,6 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
       - linux
     goarch:
       - amd64
@@ -36,7 +35,6 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
       - linux
     goarch:
       - amd64
@@ -70,65 +68,6 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-
-nfpms:
-  - id: stack
-    builds:
-      - stack
-  - vendor: rvolosatovs
-    homepage: https://www.thethingsnetwork.org
-    maintainer: The Things Network Foundation <stack@thethingsnetwork.org>
-    description: The Things Stack for LoRaWAN
-    license: Apache 2.0
-    formats:
-      - deb
-      - rpm
-    recommends:
-      - redis
-      - cockroach
-    files:
-      "public/**/*": "/srv/ttn-lorawan/public"
-
-brews:
-  - name: ttn-lw-stack
-    ids:
-      - stack
-    github:
-      owner: rvolosatovs
-      name: homebrew-lorawan-stack
-    commit_author:
-      name: ttn-ci
-      email: stack@thethingsnetwork.org
-    homepage: https://www.thethingsnetwork.org
-    description: The Things Stack for LoRaWAN
-    conflicts:
-      - ttn-lw-cli
-    skip_upload: auto
-    install: |
-      bin.install "ttn-lw-cli"
-      libexec.install %w[ttn-lw-stack public doc]
-      env = {
-          :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
-      }
-      (bin/"ttn-lw-stack").write_env_script libexec/"ttn-lw-stack", env
-
-  - name: ttn-lw-cli
-    ids:
-      - cli
-    github:
-      owner: rvolosatovs
-      name: homebrew-lorawan-stack
-    commit_author:
-      name: ttn-ci
-      email: stack@thethingsnetwork.org
-    homepage: https://www.thethingsnetwork.org
-    description: CLI of The Things Stack for LoRaWAN
-    conflicts:
-      - ttn-lw-stack
-    skip_upload: auto
-    install: |
-      bin.install "ttn-lw-cli"
-      libexec.install doc
 
 dockers:
   - goos: linux
