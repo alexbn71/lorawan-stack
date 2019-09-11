@@ -128,7 +128,6 @@ script:
     git reset -- .
     $MAGE docs:build
   fi
-- make git.diff
 after_success:
 - |
   if [[ "$RUNTYPE" == "release" ]]; then
