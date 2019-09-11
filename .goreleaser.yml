@@ -80,6 +80,6 @@ dockers:
       - "rvolosatovs/lorawan-stack:{{ .Major }}"
       - "rvolosatovs/lorawan-stack:{{ .Major }}.{{ .Minor }}"
       - "rvolosatovs/lorawan-stack:{{ .Version }}"
-    skip_push: auto
+    skip_push: false
     extra_files:
       - public
