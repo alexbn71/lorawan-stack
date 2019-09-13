@@ -116,9 +116,9 @@ message MACParameters {
   google.protobuf.BoolValue downlink_dwell_time = 21;
 
   // ADR: number of messages to wait before setting ADRAckReq.
-  ADRAckLimitExponent adr_ack_limit = 22 [(gogoproto.customname) = "ADRAckLimit", (validate.rules).enum.defined_only = true];
+  ADRAckLimitExponentValue adr_ack_limit = 22 [(gogoproto.customname) = "ADRAckLimit"];
   // ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate.
-  ADRAckDelayExponent adr_ack_delay = 23 [(gogoproto.customname) = "ADRAckDelay", (validate.rules).enum.defined_only = true];
+  ADRAckDelayExponentValue adr_ack_delay = 23 [(gogoproto.customname) = "ADRAckDelay"];
 }
 
 message EndDeviceBrand {

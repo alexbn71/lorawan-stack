@@ -271,23 +271,45 @@ func (dst *MACParameters) SetFields(src *MACParameters, paths ...string) error {
 			}
 		case "adr_ack_limit":
 			if len(subs) > 0 {
-				return fmt.Errorf("'adr_ack_limit' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.ADRAckLimit = src.ADRAckLimit
+				newDst := dst.ADRAckLimit
+				if newDst == nil {
+					newDst = &ADRAckLimitExponentValue{}
+					dst.ADRAckLimit = newDst
+				}
+				var newSrc *ADRAckLimitExponentValue
+				if src != nil {
+					newSrc = src.ADRAckLimit
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
 			} else {
-				var zero ADRAckLimitExponent
-				dst.ADRAckLimit = zero
+				if src != nil {
+					dst.ADRAckLimit = src.ADRAckLimit
+				} else {
+					dst.ADRAckLimit = nil
+				}
 			}
 		case "adr_ack_delay":
 			if len(subs) > 0 {
-				return fmt.Errorf("'adr_ack_delay' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.ADRAckDelay = src.ADRAckDelay
+				newDst := dst.ADRAckDelay
+				if newDst == nil {
+					newDst = &ADRAckDelayExponentValue{}
+					dst.ADRAckDelay = newDst
+				}
+				var newSrc *ADRAckDelayExponentValue
+				if src != nil {
+					newSrc = src.ADRAckDelay
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
 			} else {
-				var zero ADRAckDelayExponent
-				dst.ADRAckDelay = zero
+				if src != nil {
+					dst.ADRAckDelay = src.ADRAckDelay
+				} else {
+					dst.ADRAckDelay = nil
+				}
 			}
 
 		default:

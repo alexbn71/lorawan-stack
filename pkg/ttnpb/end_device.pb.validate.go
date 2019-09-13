@@ -332,19 +332,25 @@ func (m *MACParameters) ValidateFields(paths ...string) error {
 
 		case "adr_ack_limit":
 
-			if _, ok := ADRAckLimitExponent_name[int32(m.GetADRAckLimit())]; !ok {
-				return MACParametersValidationError{
-					field:  "adr_ack_limit",
-					reason: "value must be one of the defined enum values",
+			if v, ok := interface{}(m.GetADRAckLimit()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MACParametersValidationError{
+						field:  "adr_ack_limit",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
 				}
 			}
 
 		case "adr_ack_delay":
 
-			if _, ok := ADRAckDelayExponent_name[int32(m.GetADRAckDelay())]; !ok {
-				return MACParametersValidationError{
-					field:  "adr_ack_delay",
-					reason: "value must be one of the defined enum values",
+			if v, ok := interface{}(m.GetADRAckDelay()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MACParametersValidationError{
+						field:  "adr_ack_delay",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
 				}
 			}
 
