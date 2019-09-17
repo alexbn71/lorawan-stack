@@ -1060,7 +1060,7 @@ type TestEnvironment struct {
 	InteropClient     *InteropClientEnvironment
 }
 
-func StartTest(t *testing.T, conf Config, timeout time.Duration, opts ...Option) (*NetworkServer, context.Context, TestEnvironment, func()) {
+func StartTest(t *testing.T, conf Config, timeout time.Duration, stubDeduplication bool, opts ...Option) (*NetworkServer, context.Context, TestEnvironment, func()) {
 	t.Helper()
 
 	logger := test.GetLogger(t)
@@ -1089,8 +1089,16 @@ func StartTest(t *testing.T, conf Config, timeout time.Duration, opts ...Option)
 	)
 	c.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
 
-	collectionDoneCh := make(chan WindowEndRequest)
-	deduplicationDoneCh := make(chan WindowEndRequest)
+	var collectionDoneCh, deduplicationDoneCh chan WindowEndRequest
+	if stubDeduplication {
+		collectionDoneCh = make(chan WindowEndRequest)
+		deduplicationDoneCh = make(chan WindowEndRequest)
+
+		opts = append([]Option{
+			WithCollectionDoneFunc(MakeWindowEndChFunc(collectionDoneCh)),
+			WithDeduplicationDoneFunc(MakeWindowEndChFunc(deduplicationDoneCh)),
+		}, opts...)
+	}
 
 	env := TestEnvironment{
 		CollectionDone:    collectionDoneCh,
@@ -1120,8 +1128,7 @@ func StartTest(t *testing.T, conf Config, timeout time.Duration, opts ...Option)
 	ns := test.Must(New(
 		c,
 		&conf,
-		WithCollectionDoneFunc(MakeWindowEndChFunc(collectionDoneCh)),
-		WithDeduplicationDoneFunc(MakeWindowEndChFunc(deduplicationDoneCh)),
+		opts...,
 	)).(*NetworkServer)
 
 	if ns.interopClient == nil {
