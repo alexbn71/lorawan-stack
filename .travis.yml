@@ -131,7 +131,7 @@ after_success:
     $MAGE js:build
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_TAG" =~ ^v3\.[0-9]+\.[0-9]+ ]]; then
-      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(printf "[Release notes](https://github.com/TheThingsIndustries/lorawan-stack/blob/${TRAVIS_TAG}/CHANGELOG.md#${TRAVIS_TAG})")
+      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(printf "[Release notes](https://github.com/TheThingsIndustries/lorawan-stack/blob/${TRAVIS_TAG}/CHANGELOG.md#$(echo ${TRAVIS_TAG} | sed \"s/v\([1-9]\+\)\.\([1-9]\+\)\.\([1-9]\+\)/\1\2\3---$(date +%Y-%m-%d)/\")")
     else
       GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
       if [[ ! -z "$DOCKER_IMAGE_DEV" ]]; then
