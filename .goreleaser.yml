@@ -100,7 +100,7 @@ snapcrafts:
     description: The Things Stack for LoRaWAN
     grade: stable
     confinement: strict
-    publish: true
+    publish: false
     apps:
       ttn-lw-stack:
         plugs: [ home, network, network-bind ]
