@@ -76,7 +76,7 @@ nfpms:
     builds:
       - cli
       - stack
-    vendor: The Things Network
+  - vendor: rvolosatovs
     homepage: https://www.thethingsnetwork.org
     maintainer: The Things Network Foundation <stack@thethingsnetwork.org>
     description: The Things Stack for LoRaWAN
@@ -112,7 +112,7 @@ brews:
     ids:
       - stack
     github:
-      owner: TheThingsNetwork
+      owner: rvolosatovs
       name: homebrew-lorawan-stack
     commit_author:
       name: ttn-ci
@@ -134,7 +134,7 @@ brews:
     ids:
       - cli
     github:
-      owner: TheThingsNetwork
+      owner: rvolosatovs
       name: homebrew-lorawan-stack
     commit_author:
       name: ttn-ci
@@ -155,10 +155,10 @@ dockers:
       - ttn-lw-cli
       - ttn-lw-stack
     image_templates:
-      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:latest'
-      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}'
-      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
-      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Version }}'
+      - "rvolosatovs/lorawan-stack:latest"
+      - "rvolosatovs/lorawan-stack:{{ .Major }}"
+      - "rvolosatovs/lorawan-stack:{{ .Major }}.{{ .Minor }}"
+      - "rvolosatovs/lorawan-stack:{{ .Version }}"
     skip_push: auto
     extra_files:
       - public

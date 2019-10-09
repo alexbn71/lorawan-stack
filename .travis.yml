@@ -16,15 +16,11 @@ env:
   - TEST_SLOWDOWN=8
   - TEST_REDIS=1
   - PATH=/snap/bin:$PATH
-  - HUGO_BASE_URL=https://thethingsstack.io/
-  - DOCKER_IMAGE=thethingsnetwork/lorawan-stack
-  - DOCKER_IMAGE_DEV=thethingsnetwork/lorawan-stack-dev
+  - HUGO_BASE_URL=https://rvolosatovs.github.io/lorawan-stack
+  - DOCKER_IMAGE=rvolosatovs/lorawan-stack
+  - DOCKER_IMAGE_DEV=rvolosatovs/lorawan-stack-dev
 matrix:
   include:
-  - env: RUNTYPE=js
-  - env: RUNTYPE=go.test RUN_GOARCH=amd64
-  - env: RUNTYPE=go.test RUN_GOARCH=386
-  - env: RUNTYPE=go.lint
   - env: RUNTYPE=release
     if: tag IS present OR (type != pull_request AND branch = master)
 services:
@@ -137,7 +133,7 @@ after_success:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     snapcraft login --with snapcraft.login
     if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_TAG" =~ ^v3\.[0-9]+\.[0-9]+ ]]; then
-      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsNetwork -repo lorawan-stack -id "release-notes" -head $(git rev-parse HEAD) | sort)
+      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner rvolosatovs -repo lorawan-stack -id "release-notes" -head $(git rev-parse HEAD) | sort)
     else
       GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
       if [[ ! -z "$DOCKER_IMAGE_DEV" ]]; then
@@ -152,7 +148,7 @@ deploy:
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
   keep_history: true
-  fqdn: thethingsstack.io
+  fqdn: rvolosatovs.github.io/lorawan-stack
   on:
     tags: true
     condition: $RUNTYPE = "release"
