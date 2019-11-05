@@ -49,18 +49,29 @@ func (r asEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndDev
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ); err != nil {
 		return nil, err
 	}
+	if ttnpb.HasAnyField(req.FieldMask.Paths,
+		"pending_session.keys.app_s_key.key",
+		"pending_session.keys.session_key_id",
+		"session.keys.app_s_key.key",
+		"session.keys.session_key_id",
+	) {
+		if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS); err != nil {
+			return nil, err
+		}
+	}
+
 	dev, err := r.AS.deviceRegistry.Get(ctx, req.EndDeviceIdentifiers, req.FieldMask.Paths)
 	if err != nil {
 		return nil, err
 	}
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "session.keys.app_s_key") && dev.Session != nil && dev.Session.AppSKey != nil {
+	if ttnpb.HasAnyField(req.FieldMask.Paths, "session.keys.app_s_key.key") && dev.Session != nil && dev.Session.AppSKey != nil {
 		key, err := cryptoutil.UnwrapAES128Key(ctx, *dev.Session.AppSKey, r.AS.KeyVault)
 		if err != nil {
 			return nil, err
 		}
 		dev.Session.AppSKey = &ttnpb.KeyEnvelope{Key: &key}
 	}
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "pending_session.keys.app_s_key") && dev.PendingSession != nil && dev.PendingSession.AppSKey != nil {
+	if ttnpb.HasAnyField(req.FieldMask.Paths, "pending_session.keys.app_s_key.key") && dev.PendingSession != nil && dev.PendingSession.AppSKey != nil {
 		key, err := cryptoutil.UnwrapAES128Key(ctx, *dev.PendingSession.AppSKey, r.AS.KeyVault)
 		if err != nil {
 			return nil, err
@@ -83,6 +94,16 @@ func (r asEndDeviceRegistryServer) Set(ctx context.Context, req *ttnpb.SetEndDev
 
 	if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE); err != nil {
 		return nil, err
+	}
+	if ttnpb.HasAnyField(req.FieldMask.Paths,
+		"pending_session.keys.app_s_key.key",
+		"pending_session.keys.session_key_id",
+		"session.keys.app_s_key.key",
+		"session.keys.session_key_id",
+	) {
+		if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS); err != nil {
+			return nil, err
+		}
 	}
 
 	var evt events.Event

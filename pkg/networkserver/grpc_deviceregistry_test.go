@@ -88,13 +88,63 @@ func TestDeviceRegistryGet(t *testing.T) {
 		},
 
 		{
-			Name: "Valid request",
+			Name: "no keys",
 			ContextFunc: func(ctx context.Context) context.Context {
 				return rights.NewContext(ctx, rights.Rights{
 					ApplicationRights: map[string]*ttnpb.Rights{
 						unique.ID(test.Context(), ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"}): {
 							Rights: []ttnpb.Right{
 								ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+							},
+						},
+					},
+				})
+			},
+			GetByIDFunc: func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, gets []string) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				a.So(appID, should.Resemble, ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"})
+				a.So(devID, should.Equal, "test-dev-id")
+				a.So(gets, should.Resemble, []string{
+					"frequency_plan_id",
+				})
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+						DeviceID:               "test-dev-id",
+						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+					},
+					FrequencyPlanID: test.EUFrequencyPlanID,
+				}, nil
+			},
+			Request: &ttnpb.GetEndDeviceRequest{
+				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+					DeviceID:               "test-dev-id",
+					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+				},
+				FieldMask: pbtypes.FieldMask{
+					Paths: []string{
+						"frequency_plan_id",
+					},
+				},
+			},
+			Device: &ttnpb.EndDevice{
+				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+					DeviceID:               "test-dev-id",
+					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+				},
+				FrequencyPlanID: test.EUFrequencyPlanID,
+			},
+			GetByIDCalls: 1,
+		},
+
+		{
+			Name: "with keys",
+			ContextFunc: func(ctx context.Context) context.Context {
+				return rights.NewContext(ctx, rights.Rights{
+					ApplicationRights: map[string]*ttnpb.Rights{
+						unique.ID(test.Context(), ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"}): {
+							Rights: []ttnpb.Right{
+								ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+								ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
 							},
 						},
 					},
@@ -113,6 +163,7 @@ func TestDeviceRegistryGet(t *testing.T) {
 						DeviceID:               "test-dev-id",
 						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
 					},
+					FrequencyPlanID: test.EUFrequencyPlanID,
 					Session: &ttnpb.Session{
 						SessionKeys: ttnpb.SessionKeys{
 							FNwkSIntKey: &ttnpb.KeyEnvelope{
@@ -143,6 +194,7 @@ func TestDeviceRegistryGet(t *testing.T) {
 					DeviceID:               "test-dev-id",
 					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
 				},
+				FrequencyPlanID: test.EUFrequencyPlanID,
 				Session: &ttnpb.Session{
 					SessionKeys: ttnpb.SessionKeys{
 						FNwkSIntKey: &ttnpb.KeyEnvelope{
@@ -369,9 +421,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 				a.So(devID, should.Equal, "test-dev-id")
 				a.So(gets, should.HaveSameElementsDeep, []string{
 					"frequency_plan_id",
-					"frequency_plan_id",
 					"last_dev_status_received_at",
-					"lorawan_phy_version",
 					"lorawan_phy_version",
 					"lorawan_version",
 					"mac_settings",
@@ -380,7 +430,10 @@ func TestDeviceRegistrySet(t *testing.T) {
 					"multicast",
 					"queued_application_downlinks",
 					"recent_uplinks",
-					"session",
+					"session.dev_addr",
+					"session.last_conf_f_cnt_down",
+					"session.last_f_cnt_up",
+					"session.last_n_f_cnt_down",
 					"supports_class_b",
 					"supports_class_c",
 					"supports_join",
@@ -475,6 +528,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 						unique.ID(test.Context(), ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"}): {
 							Rights: []ttnpb.Right{
 								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
 							},
 						},
 					},
@@ -491,9 +545,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 				a.So(devID, should.Equal, "test-dev-id")
 				a.So(gets, should.HaveSameElementsDeep, []string{
 					"frequency_plan_id",
-					"frequency_plan_id",
 					"last_dev_status_received_at",
-					"lorawan_phy_version",
 					"lorawan_phy_version",
 					"lorawan_version",
 					"mac_settings",
@@ -503,9 +555,9 @@ func TestDeviceRegistrySet(t *testing.T) {
 					"multicast",
 					"queued_application_downlinks",
 					"recent_uplinks",
-					"session",
 					"session.dev_addr",
 					"session.keys.f_nwk_s_int_key.key",
+					"session.last_conf_f_cnt_down",
 					"session.last_f_cnt_up",
 					"session.last_n_f_cnt_down",
 					"session.started_at",
@@ -664,6 +716,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 						unique.ID(test.Context(), ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"}): {
 							Rights: []ttnpb.Right{
 								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
 							},
 						},
 					},
@@ -680,25 +733,23 @@ func TestDeviceRegistrySet(t *testing.T) {
 				a.So(devID, should.Equal, "test-dev-id")
 				a.So(gets, should.HaveSameElementsDeep, []string{
 					"frequency_plan_id",
-					"lorawan_phy_version",
-					"lorawan_version",
-					"mac_settings.supports_32_bit_f_cnt",
-					"mac_settings.use_adr",
-					"session.dev_addr",
-					"session.keys.f_nwk_s_int_key.key",
-					"session.last_f_cnt_up",
-					"session.last_n_f_cnt_down",
-					"session.started_at",
-					"supports_join",
-					"frequency_plan_id",
 					"last_dev_status_received_at",
 					"lorawan_phy_version",
+					"lorawan_version",
 					"mac_settings",
+					"mac_settings.supports_32_bit_f_cnt",
+					"mac_settings.use_adr",
 					"mac_state",
 					"multicast",
 					"queued_application_downlinks",
 					"recent_uplinks",
-					"session",
+					"session.dev_addr",
+					"session.keys.f_nwk_s_int_key.key",
+					"session.last_conf_f_cnt_down",
+					"session.last_f_cnt_up",
+					"session.last_n_f_cnt_down",
+					"session.started_at",
+					"supports_join",
 				})
 
 				dev, sets, err := f(nil)
@@ -843,6 +894,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 						unique.ID(test.Context(), ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"}): {
 							Rights: []ttnpb.Right{
 								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+								ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
 							},
 						},
 					},
@@ -859,9 +911,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 				a.So(devID, should.Equal, "test-dev-id")
 				a.So(gets, should.HaveSameElementsDeep, []string{
 					"frequency_plan_id",
-					"frequency_plan_id",
 					"last_dev_status_received_at",
-					"lorawan_phy_version",
 					"lorawan_phy_version",
 					"lorawan_version",
 					"mac_settings",
@@ -871,9 +921,9 @@ func TestDeviceRegistrySet(t *testing.T) {
 					"multicast",
 					"queued_application_downlinks",
 					"recent_uplinks",
-					"session",
 					"session.dev_addr",
 					"session.keys.f_nwk_s_int_key.key",
+					"session.last_conf_f_cnt_down",
 					"session.last_f_cnt_up",
 					"session.last_n_f_cnt_down",
 					"session.started_at",
@@ -1053,7 +1103,10 @@ func TestDeviceRegistrySet(t *testing.T) {
 					"multicast",
 					"queued_application_downlinks",
 					"recent_uplinks",
-					"session",
+					"session.dev_addr",
+					"session.last_conf_f_cnt_down",
+					"session.last_f_cnt_up",
+					"session.last_n_f_cnt_down",
 				})
 
 				dev, sets, err := f(&ttnpb.EndDevice{

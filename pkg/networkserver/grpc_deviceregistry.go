@@ -52,6 +52,20 @@ func (ns *NetworkServer) Get(ctx context.Context, req *ttnpb.GetEndDeviceRequest
 			return nil, err
 		}
 	}
+	if ttnpb.HasAnyField(req.FieldMask.Paths,
+		"pending_session.keys.f_nwk_s_int_key.key",
+		"pending_session.keys.nwk_s_enc_key.key",
+		"pending_session.keys.s_nwk_s_int_key.key",
+		"pending_session.keys.session_key_id",
+		"session.keys.f_nwk_s_int_key.key",
+		"session.keys.nwk_s_enc_key.key",
+		"session.keys.s_nwk_s_int_key.key",
+		"session.keys.session_key_id",
+	) {
+		if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS); err != nil {
+			return nil, err
+		}
+	}
 
 	gets := req.FieldMask.Paths
 	if ttnpb.HasAnyField(req.FieldMask.Paths, "mac_state.current_parameters.adr_ack_delay") && !ttnpb.HasAnyField(gets, "mac_state.current_parameters.adr_ack_delay_exponent") {
@@ -166,6 +180,20 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 	if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE); err != nil {
 		return nil, err
 	}
+	if ttnpb.HasAnyField(req.FieldMask.Paths,
+		"pending_session.keys.f_nwk_s_int_key.key",
+		"pending_session.keys.nwk_s_enc_key.key",
+		"pending_session.keys.s_nwk_s_int_key.key",
+		"pending_session.keys.session_key_id",
+		"session.keys.f_nwk_s_int_key.key",
+		"session.keys.nwk_s_enc_key.key",
+		"session.keys.s_nwk_s_int_key.key",
+		"session.keys.session_key_id",
+	) {
+		if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS); err != nil {
+			return nil, err
+		}
+	}
 
 	gets := req.FieldMask.Paths
 	var needsDownlinkCheck bool
@@ -176,7 +204,7 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 		"mac_state",
 		"session",
 	}, req.FieldMask.Paths...) {
-		gets = append(gets,
+		for _, p := range []string{
 			"frequency_plan_id",
 			"last_dev_status_received_at",
 			"lorawan_phy_version",
@@ -185,8 +213,15 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 			"multicast",
 			"queued_application_downlinks",
 			"recent_uplinks",
-			"session",
-		)
+			"session.dev_addr",
+			"session.last_conf_f_cnt_down",
+			"session.last_f_cnt_up",
+			"session.last_n_f_cnt_down",
+		} {
+			if !ttnpb.HasAnyField(gets, p) {
+				gets = append(gets, p)
+			}
+		}
 		needsDownlinkCheck = true
 	}
 
