@@ -59,30 +59,30 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ); err != nil {
 		return nil, err
 	}
-	paths := req.FieldMask.Paths
+	gets := req.FieldMask.Paths
 	if fieldmaskHasRootKeys(req.FieldMask.Paths...) {
 		if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS); err != nil {
 			return nil, err
 		}
-		paths = append(paths, "provisioner_id", "provisioning_data")
+		gets = append(gets, "provisioner_id", "provisioning_data")
 		if !ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.root_key_id") {
-			paths = append(paths, "root_keys.root_key_id")
+			gets = append(gets, "root_keys.root_key_id")
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.app_key.key") {
-			paths = append(paths,
+			gets = append(gets,
 				"root_keys.app_key.kek_label",
 				"root_keys.app_key.encrypted_key",
 			)
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.nwk_key.key") {
-			paths = append(paths,
+			gets = append(gets,
 				"root_keys.nwk_key.kek_label",
 				"root_keys.nwk_key.encrypted_key",
 			)
 		}
 	}
 	logger := log.FromContext(ctx)
-	dev, err := srv.JS.devices.GetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, paths)
+	dev, err := srv.JS.devices.GetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, gets)
 	if errors.IsNotFound(err) {
 		return nil, errDeviceNotFound
 	}
