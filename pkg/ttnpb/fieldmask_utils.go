@@ -189,3 +189,37 @@ func fieldsWithPrefix(prefix string, paths ...string) []string {
 	}
 	return ret
 }
+
+// AppendImplicitEndDeviceGetPaths appends implicit EndDevice get paths to paths.
+func AppendImplicitEndDeviceGetPaths(paths ...string) []string {
+	return append(append(make([]string, 0, 3+len(paths)),
+		"created_at",
+		"ids",
+		"updated_at",
+	), paths...)
+}
+
+// ApplyEndDeviceFieldMask applies fields specified by paths from src to dst and returns the result.
+// If dst is nil, a new EndDevice is created.
+func ApplyEndDeviceFieldMask(dst, src *EndDevice, paths ...string) (*EndDevice, error) {
+	if dst == nil {
+		dst = &EndDevice{}
+	}
+	return dst, dst.SetFields(src, paths...)
+}
+
+// AppendImplicitSessionKeysGetPaths appends implicit SessionKeys get paths to paths.
+func AppendImplicitSessionKeysGetPaths(paths ...string) []string {
+	return append(append(make([]string, 0, 1+len(paths)),
+		"session_key_id",
+	), paths...)
+}
+
+// ApplySessionKeysFieldMask applies fields specified by paths from src to dst and returns the result.
+// If dst is nil, a new SessionKeys is created.
+func ApplySessionKeysFieldMask(dst, src *SessionKeys, paths ...string) (*SessionKeys, error) {
+	if dst == nil {
+		dst = &SessionKeys{}
+	}
+	return dst, dst.SetFields(src, paths...)
+}
