@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reading and writing of session keys in Application and Network server registries now require device key read and write rights respectively.
+- Top-level key field masks are not supported anymore, i.e. `root_keys` is not a valid field mask, full path must be specified explicitly, e.g. `root_keys.nwk_key.key` or `root_keys.app_key.key`.
+
 ### Deprecated
 
 ### Removed
