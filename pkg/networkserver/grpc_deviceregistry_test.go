@@ -625,48 +625,34 @@ func TestDeviceRegistrySet(t *testing.T) {
 					},
 				},
 			},
-			Device: func() *ttnpb.EndDevice {
-				expected := &ttnpb.EndDevice{
-					EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
-						DeviceID:               "test-dev-id",
-						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
-						JoinEUI:                &types.EUI64{0x70, 0xB3, 0xD5, 0x95, 0x20, 0x00, 0x00, 0x00},
-						DevEUI:                 &types.EUI64{0xA8, 0x17, 0x58, 0xFF, 0xFE, 0x03, 0x22, 0x77},
-						DevAddr:                &types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
-					},
-					FrequencyPlanID:   test.EUFrequencyPlanID,
-					LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
-					LoRaWANVersion:    ttnpb.MAC_V1_0_2,
-					SupportsJoin:      true,
-					MACSettings: &ttnpb.MACSettings{
-						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
-						UseADR:            &pbtypes.BoolValue{Value: true},
-					},
-					Session: &ttnpb.Session{
-						StartedAt:     time.Unix(0, 42).UTC(),
-						DevAddr:       types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
-						LastFCntUp:    45872,
-						LastNFCntDown: 1880,
-						SessionKeys: ttnpb.SessionKeys{
-							FNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
-							NwkSEncKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
-							SNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
+			Device: &ttnpb.EndDevice{
+				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+					DeviceID:               "test-dev-id",
+					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+					JoinEUI:                &types.EUI64{0x70, 0xB3, 0xD5, 0x95, 0x20, 0x00, 0x00, 0x00},
+					DevEUI:                 &types.EUI64{0xA8, 0x17, 0x58, 0xFF, 0xFE, 0x03, 0x22, 0x77},
+					DevAddr:                &types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
+				},
+				FrequencyPlanID:   test.EUFrequencyPlanID,
+				LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
+				LoRaWANVersion:    ttnpb.MAC_V1_0_2,
+				SupportsJoin:      true,
+				MACSettings: &ttnpb.MACSettings{
+					Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					UseADR:            &pbtypes.BoolValue{Value: true},
+				},
+				Session: &ttnpb.Session{
+					StartedAt:     time.Unix(0, 42).UTC(),
+					DevAddr:       types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
+					LastFCntUp:    45872,
+					LastNFCntDown: 1880,
+					SessionKeys: ttnpb.SessionKeys{
+						FNwkSIntKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
 						},
 					},
-				}
-				macState, err := NewMACState(expected, frequencyplans.NewStore(test.FrequencyPlansFetcher), ttnpb.MACSettings{})
-				if err != nil {
-					panic(fmt.Sprintf("Failed to reset MAC state: %s", err))
-				}
-				expected.MACState = macState
-				return expected
-			}(),
+				},
+			},
 			SetByIDCalls: 1,
 		},
 
@@ -820,45 +806,31 @@ func TestDeviceRegistrySet(t *testing.T) {
 					},
 				},
 			},
-			Device: func() *ttnpb.EndDevice {
-				expected := &ttnpb.EndDevice{
-					EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
-						DeviceID:               "test-dev-id",
-						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
-						DevAddr:                &types.DevAddr{0x42, 0x00, 0x00, 0x00},
-					},
-					FrequencyPlanID:   test.EUFrequencyPlanID,
-					LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
-					LoRaWANVersion:    ttnpb.MAC_V1_0_2,
-					MACSettings: &ttnpb.MACSettings{
-						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
-						UseADR:            &pbtypes.BoolValue{Value: true},
-					},
-					Session: &ttnpb.Session{
-						StartedAt:     time.Unix(0, 42).UTC(),
-						DevAddr:       types.DevAddr{0x42, 0x00, 0x00, 0x00},
-						LastFCntUp:    42,
-						LastNFCntDown: 4242,
-						SessionKeys: ttnpb.SessionKeys{
-							FNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-							},
-							NwkSEncKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-							},
-							SNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-							},
+			Device: &ttnpb.EndDevice{
+				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+					DeviceID:               "test-dev-id",
+					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+					DevAddr:                &types.DevAddr{0x42, 0x00, 0x00, 0x00},
+				},
+				FrequencyPlanID:   test.EUFrequencyPlanID,
+				LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
+				LoRaWANVersion:    ttnpb.MAC_V1_0_2,
+				MACSettings: &ttnpb.MACSettings{
+					Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					UseADR:            &pbtypes.BoolValue{Value: true},
+				},
+				Session: &ttnpb.Session{
+					StartedAt:     time.Unix(0, 42).UTC(),
+					DevAddr:       types.DevAddr{0x42, 0x00, 0x00, 0x00},
+					LastFCntUp:    42,
+					LastNFCntDown: 4242,
+					SessionKeys: ttnpb.SessionKeys{
+						FNwkSIntKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
 						},
 					},
-				}
-				macState, err := NewMACState(expected, frequencyplans.NewStore(test.FrequencyPlansFetcher), ttnpb.MACSettings{})
-				if err != nil {
-					panic(fmt.Sprintf("Failed to reset MAC state: %s", err))
-				}
-				expected.MACState = macState
-				return expected
-			}(),
+				},
+			},
 			SetByIDCalls: 1,
 		},
 
@@ -1019,47 +991,33 @@ func TestDeviceRegistrySet(t *testing.T) {
 					},
 				},
 			},
-			Device: func() *ttnpb.EndDevice {
-				expected := &ttnpb.EndDevice{
-					EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
-						DeviceID:               "test-dev-id",
-						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
-						JoinEUI:                &types.EUI64{0x70, 0xB3, 0xD5, 0x95, 0x20, 0x00, 0x00, 0x00},
-						DevEUI:                 &types.EUI64{0xA8, 0x17, 0x58, 0xFF, 0xFE, 0x03, 0x22, 0x77},
-						DevAddr:                &types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
-					},
-					FrequencyPlanID:   test.EUFrequencyPlanID,
-					LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
-					LoRaWANVersion:    ttnpb.MAC_V1_0_2,
-					MACSettings: &ttnpb.MACSettings{
-						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
-						UseADR:            &pbtypes.BoolValue{Value: true},
-					},
-					Session: &ttnpb.Session{
-						StartedAt:     time.Unix(0, 42).UTC(),
-						DevAddr:       types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
-						LastFCntUp:    45872,
-						LastNFCntDown: 1880,
-						SessionKeys: ttnpb.SessionKeys{
-							FNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
-							NwkSEncKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
-							SNwkSIntKey: &ttnpb.KeyEnvelope{
-								Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
-							},
+			Device: &ttnpb.EndDevice{
+				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+					DeviceID:               "test-dev-id",
+					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
+					JoinEUI:                &types.EUI64{0x70, 0xB3, 0xD5, 0x95, 0x20, 0x00, 0x00, 0x00},
+					DevEUI:                 &types.EUI64{0xA8, 0x17, 0x58, 0xFF, 0xFE, 0x03, 0x22, 0x77},
+					DevAddr:                &types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
+				},
+				FrequencyPlanID:   test.EUFrequencyPlanID,
+				LoRaWANPHYVersion: ttnpb.PHY_V1_0_2_REV_B,
+				LoRaWANVersion:    ttnpb.MAC_V1_0_2,
+				MACSettings: &ttnpb.MACSettings{
+					Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					UseADR:            &pbtypes.BoolValue{Value: true},
+				},
+				Session: &ttnpb.Session{
+					StartedAt:     time.Unix(0, 42).UTC(),
+					DevAddr:       types.DevAddr{0x01, 0x0b, 0x60, 0x0c},
+					LastFCntUp:    45872,
+					LastNFCntDown: 1880,
+					SessionKeys: ttnpb.SessionKeys{
+						FNwkSIntKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x9e, 0x2f, 0xb6, 0x1d, 0x73, 0x10, 0xc9, 0x27, 0x98, 0x86, 0xdb, 0x79, 0xfa, 0x52, 0xf9, 0xf4},
 						},
 					},
-				}
-				macState, err := NewMACState(expected, frequencyplans.NewStore(test.FrequencyPlansFetcher), ttnpb.MACSettings{})
-				if err != nil {
-					panic(fmt.Sprintf("Failed to reset MAC state: %s", err))
-				}
-				expected.MACState = macState
-				return expected
-			}(),
+				},
+			},
 			SetByIDCalls: 1,
 		},
 
@@ -1173,13 +1131,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 					DeviceID:               "test-dev-id",
 					ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{ApplicationID: "test-app-id"},
 				},
-				FrequencyPlanID:   test.EUFrequencyPlanID,
-				LoRaWANPHYVersion: ttnpb.PHY_V1_1_REV_B,
 				MACState: &ttnpb.MACState{
-					LoRaWANVersion: ttnpb.MAC_V1_1,
-					CurrentParameters: ttnpb.MACParameters{
-						Rx2Frequency: 868000000,
-					},
 					DesiredParameters: ttnpb.MACParameters{
 						Rx2Frequency: 123456789,
 					},

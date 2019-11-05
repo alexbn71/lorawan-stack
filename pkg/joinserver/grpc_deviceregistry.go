@@ -124,7 +124,7 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 			}
 		}
 	}
-	return dev, nil
+	return ttnpb.FilterGetEndDevice(dev, req.FieldMask.Paths...)
 }
 
 var (
@@ -179,7 +179,7 @@ func (srv jsEndDeviceRegistryServer) Set(ctx context.Context, req *ttnpb.SetEndD
 	if evt != nil {
 		events.Publish(evt)
 	}
-	return dev, nil
+	return ttnpb.FilterGetEndDevice(dev, req.FieldMask.Paths...)
 }
 
 // Provision is deprecated.

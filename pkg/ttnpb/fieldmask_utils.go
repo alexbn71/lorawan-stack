@@ -208,6 +208,11 @@ func ApplyEndDeviceFieldMask(dst, src *EndDevice, paths ...string) (*EndDevice, 
 	return dst, dst.SetFields(src, paths...)
 }
 
+// FilterGetEndDevice returns a new EndDevice with only implicit fields and the ones specified by paths set.
+func FilterGetEndDevice(pb *EndDevice, paths ...string) (*EndDevice, error) {
+	return ApplyEndDeviceFieldMask(nil, pb, AppendImplicitEndDeviceGetPaths(paths...)...)
+}
+
 // AppendImplicitSessionKeysGetPaths appends implicit SessionKeys get paths to paths.
 func AppendImplicitSessionKeysGetPaths(paths ...string) []string {
 	return append(append(make([]string, 0, 1+len(paths)),
@@ -222,4 +227,9 @@ func ApplySessionKeysFieldMask(dst, src *SessionKeys, paths ...string) (*Session
 		dst = &SessionKeys{}
 	}
 	return dst, dst.SetFields(src, paths...)
+}
+
+// FilterGetSessionKeys returns a new SessionKeys with only implicit fields and the ones specified by paths set.
+func FilterGetSessionKeys(pb *SessionKeys, paths ...string) (*SessionKeys, error) {
+	return ApplySessionKeysFieldMask(nil, pb, AppendImplicitSessionKeysGetPaths(paths...)...)
 }
