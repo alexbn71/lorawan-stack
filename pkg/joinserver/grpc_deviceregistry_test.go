@@ -247,7 +247,7 @@ func TestDeviceRegistryGet(t *testing.T) {
 			DeviceRequest: &ttnpb.GetEndDeviceRequest{
 				EndDeviceIdentifiers: deepcopy.Copy(registeredDevice.EndDeviceIdentifiers).(ttnpb.EndDeviceIdentifiers),
 				FieldMask: pbtypes.FieldMask{
-					Paths: []string{"ids", "root_keys"},
+					Paths: []string{"ids", "root_keys.app_key.key", "root_keys.nwk_key.key"},
 				},
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
@@ -274,13 +274,24 @@ func TestDeviceRegistryGet(t *testing.T) {
 					ApplicationID: registeredApplicationID,
 				})
 				a.So(devID, should.Equal, registeredDeviceID)
-				a.So(paths, should.HaveSameElementsDeep, []string{"ids", "root_keys", "provisioner_id", "provisioning_data"})
+				a.So(paths, should.HaveSameElementsDeep, []string{
+					"ids",
+					"provisioner_id",
+					"provisioning_data",
+					"root_keys.app_key.encrypted_key",
+					"root_keys.app_key.kek_label",
+					"root_keys.app_key.key",
+					"root_keys.nwk_key.encrypted_key",
+					"root_keys.nwk_key.kek_label",
+					"root_keys.nwk_key.key",
+					"root_keys.root_key_id",
+				})
 				return CopyEndDevice(registeredDevice), nil
 			},
 			DeviceRequest: &ttnpb.GetEndDeviceRequest{
 				EndDeviceIdentifiers: deepcopy.Copy(registeredDevice.EndDeviceIdentifiers).(ttnpb.EndDeviceIdentifiers),
 				FieldMask: pbtypes.FieldMask{
-					Paths: []string{"ids", "root_keys"},
+					Paths: []string{"ids", "root_keys.app_key.key", "root_keys.nwk_key.key"},
 				},
 			},
 			DeviceAssertion: func(t *testing.T, dev *ttnpb.EndDevice) bool {
@@ -594,7 +605,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 			DeviceRequest: &ttnpb.SetEndDeviceRequest{
 				EndDevice: *CopyEndDevice(registeredDevice),
 				FieldMask: pbtypes.FieldMask{
-					Paths: []string{"root_keys"},
+					Paths: []string{"root_keys.app_key.key", "root_keys.nwk_key.key"},
 				},
 			},
 			SetByIDFunc: func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, paths []string, cb func(*ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) (*ttnpb.EndDevice, error) {
@@ -632,7 +643,7 @@ func TestDeviceRegistrySet(t *testing.T) {
 					},
 				}),
 				FieldMask: pbtypes.FieldMask{
-					Paths: []string{"root_keys"},
+					Paths: []string{"root_keys.app_key.key", "root_keys.nwk_key.key"},
 				},
 			},
 			SetByIDFunc: func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, gets []string, cb func(*ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) (*ttnpb.EndDevice, error) {
@@ -642,11 +653,11 @@ func TestDeviceRegistrySet(t *testing.T) {
 				})
 				a.So(devID, should.Equal, registeredDeviceID)
 				a.So(gets, should.HaveSameElementsDeep, []string{
-					"root_keys",
+					"root_keys.app_key.key", "root_keys.nwk_key.key",
 				})
 				dev, sets, err := cb(CopyEndDevice(registeredDevice))
 				a.So(sets, should.HaveSameElementsDeep, []string{
-					"root_keys",
+					"root_keys.app_key.key", "root_keys.nwk_key.key",
 				})
 				return dev, err
 			},

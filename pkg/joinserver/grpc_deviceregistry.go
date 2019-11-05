@@ -46,17 +46,40 @@ type jsEndDeviceRegistryServer struct {
 	JS *JoinServer
 }
 
+func fieldmaskHasRootKeys(paths ...string) bool {
+	return ttnpb.HasAnyField(paths,
+		"root_keys.app_key.key",
+		"root_keys.nwk_key.key",
+		"root_keys.root_key_id",
+	)
+}
+
 // Get implements ttnpb.JsEndDeviceRegistryServer.
 func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndDeviceRequest) (*ttnpb.EndDevice, error) {
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ); err != nil {
 		return nil, err
 	}
 	paths := req.FieldMask.Paths
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys") {
+	if fieldmaskHasRootKeys(req.FieldMask.Paths...) {
 		if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS); err != nil {
 			return nil, err
 		}
 		paths = append(paths, "provisioner_id", "provisioning_data")
+		if !ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.root_key_id") {
+			paths = append(paths, "root_keys.root_key_id")
+		}
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.app_key.key") {
+			paths = append(paths,
+				"root_keys.app_key.kek_label",
+				"root_keys.app_key.encrypted_key",
+			)
+		}
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.nwk_key.key") {
+			paths = append(paths,
+				"root_keys.nwk_key.kek_label",
+				"root_keys.nwk_key.encrypted_key",
+			)
+		}
 	}
 	logger := log.FromContext(ctx)
 	dev, err := srv.JS.devices.GetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, paths)
@@ -69,7 +92,7 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 	if !dev.ApplicationIdentifiers.Equal(req.ApplicationIdentifiers) {
 		return nil, errDeviceNotFound
 	}
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys") {
+	if fieldmaskHasRootKeys(req.FieldMask.Paths...) {
 		rootKeysEnc := dev.RootKeys
 		dev.RootKeys = &ttnpb.RootKeys{
 			RootKeyID: rootKeysEnc.GetRootKeyID(),
@@ -81,7 +104,7 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 			}
 			cc = nil
 		}
-		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.nwk_key") {
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.nwk_key.key") {
 			var networkCryptoService cryptoservices.Network
 			if rootKeysEnc.GetNwkKey() != nil {
 				nwkKey, err := cryptoutil.UnwrapAES128Key(ctx, *rootKeysEnc.NwkKey, srv.JS.KeyVault)
@@ -102,7 +125,7 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 				}
 			}
 		}
-		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.app_key") {
+		if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys.app_key.key") {
 			var applicationCryptoService cryptoservices.Application
 			if rootKeysEnc.GetAppKey() != nil {
 				appKey, err := cryptoutil.UnwrapAES128Key(ctx, *rootKeysEnc.AppKey, srv.JS.KeyVault)
@@ -144,7 +167,7 @@ func (srv jsEndDeviceRegistryServer) Set(ctx context.Context, req *ttnpb.SetEndD
 	if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE); err != nil {
 		return nil, err
 	}
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "root_keys") {
+	if fieldmaskHasRootKeys(req.FieldMask.Paths...) {
 		if err := rights.RequireApplication(ctx, req.EndDevice.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS); err != nil {
 			return nil, err
 		}
